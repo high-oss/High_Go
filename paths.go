@@ -5,7 +5,6 @@ package highopenapi
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 )
 
@@ -31,7 +30,7 @@ func pathOf(template string, params map[string]string) (string, error) {
 			if !ok {
 				return "", fmt.Errorf("missing path parameter %q for %s", name, template)
 			}
-			b.WriteString(url.PathEscape(value))
+			b.WriteString(encodeURIComponent(value))
 			i += end + 1
 			continue
 		}
@@ -39,4 +38,25 @@ func pathOf(template string, params map[string]string) (string, error) {
 		i++
 	}
 	return b.String(), nil
+}
+
+// encodeURIComponent mirrors JavaScript's encodeURIComponent: every byte
+// outside RFC 3986's unreserved set (ALPHA / DIGIT / "-" / "." / "_" / "~")
+// is percent-encoded, including '&', '/' and space. url.PathEscape is not
+// this: it leaves sub-delimiters like '&' unescaped because they are valid
+// inside an RFC 3986 path segment on their own — but the contract requires
+// "M&M-EQ" to come out as "M%26M-EQ" so a trading symbol containing one never
+// changes the request's shape.
+func encodeURIComponent(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+			c == '-' || c == '_' || c == '.' || c == '~' {
+			b.WriteByte(c)
+			continue
+		}
+		fmt.Fprintf(&b, "%%%02X", c)
+	}
+	return b.String()
 }
