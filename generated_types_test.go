@@ -4,37 +4,15 @@
 package highopenapi_test
 
 import (
-	"encoding/json"
-	"os"
 	"testing"
 
+	"github.com/high-live/high-openapi"
 	"github.com/high-live/high-openapi/generated"
 )
 
-type specDoc struct {
-	Servers []struct {
-		URL         string `json:"url"`
-		Environment string `json:"x-environment"`
-	} `json:"servers"`
-	Paths map[string]map[string]json.RawMessage `json:"paths"`
-}
-
-func loadPinnedSpec(t *testing.T) specDoc {
-	t.Helper()
-	data, err := os.ReadFile("generated/openapi.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var doc specDoc
-	if err := json.Unmarshal(data, &doc); err != nil {
-		t.Fatal(err)
-	}
-	return doc
-}
-
 // The pinned spec has 27 operations; the SDK covers 24 of them (contract §1).
 func TestGeneratedTypesCoverEveryOperation(t *testing.T) {
-	doc := loadPinnedSpec(t)
+	doc := highopenapi.LoadPinnedSpec(t)
 	methods := map[string]bool{"get": true, "post": true, "put": true, "delete": true, "patch": true}
 	count := 0
 	for _, item := range doc.Paths {
