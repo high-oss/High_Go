@@ -6,7 +6,7 @@ package highopenapi
 import (
 	"context"
 
-	"github.com/high-live/high-openapi/generated"
+	"github.com/high-oss/High_Go/generated"
 )
 
 // MarketResource covers exchange session state.

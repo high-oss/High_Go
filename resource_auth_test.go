@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	highopenapi "github.com/high-live/high-openapi"
+	highopenapi "github.com/high-oss/High_Go"
 )
 
 func clientFor(t *testing.T, ts *highopenapi.TestServer, apply func(*highopenapi.Options)) *highopenapi.Client {

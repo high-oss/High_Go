@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	highopenapi "github.com/high-live/high-openapi"
+	highopenapi "github.com/high-oss/High_Go"
 )
 
 // Example is the quickstart from the README, made runnable and verified by

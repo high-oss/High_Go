@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"testing"
 
-	highopenapi "github.com/high-live/high-openapi"
-	"github.com/high-live/high-openapi/generated"
+	highopenapi "github.com/high-oss/High_Go"
+	"github.com/high-oss/High_Go/generated"
 )
 
 func TestPortfolioPositionsReturnsSnapshotAndList(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/high-live/high-openapi
+module github.com/high-oss/High_Go
 
 go 1.23
 

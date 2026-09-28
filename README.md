@@ -7,7 +7,7 @@ against the canonical OpenAPI contract, generated with
 ## Install
 
 ```bash
-go get github.com/high-live/high-openapi
+go get github.com/high-oss/High_Go
 ```
 
 Go 1.23 or newer.
@@ -23,7 +23,7 @@ import (
 	"log"
 	"os"
 
-	highopenapi "github.com/high-live/high-openapi"
+	highopenapi "github.com/high-oss/High_Go"
 )
 
 func main() {

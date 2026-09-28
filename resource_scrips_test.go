@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	highopenapi "github.com/high-live/high-openapi"
+	highopenapi "github.com/high-oss/High_Go"
 )
 
 func TestScripsQuotesReturnsAMapKeyedByTradingSymbol(t *testing.T) {

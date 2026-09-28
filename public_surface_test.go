@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	highopenapi "github.com/high-live/high-openapi"
+	highopenapi "github.com/high-oss/High_Go"
 )
 
 // Every operation the SDK covers, as a method name per resource — the same

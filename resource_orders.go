@@ -6,7 +6,7 @@ package highopenapi
 import (
 	"context"
 
-	"github.com/high-live/high-openapi/generated"
+	"github.com/high-oss/High_Go/generated"
 )
 
 // Request/response types for orders, derived from the generated package so a
