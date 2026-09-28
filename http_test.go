@@ -95,7 +95,9 @@ func TestRequestFailsBeforeSendingWhenCredentialMissing(t *testing.T) {
 }
 
 func TestRequestSerialisesJSONBody(t *testing.T) {
-	ts := StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) { WriteJSON(w, 200, Envelope("r", map[string]any{})) })
+	ts := StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		WriteJSON(w, 200, Envelope("r", map[string]any{}))
+	})
 	defer ts.Close()
 
 	_, err := doRequest[map[string]any](context.Background(), configFor(t, ts, nil), requestOptions{

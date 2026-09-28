@@ -13,8 +13,8 @@ import (
 // spec change that renames or retypes a field breaks the build rather than
 // silently drifting.
 type (
-	PlaceOrderRequest  = generated.PlaceOrderJSONRequestBody
-	ModifyOrderRequest = generated.ModifyOrderJSONRequestBody
+	PlaceOrderRequest   = generated.PlaceOrderJSONRequestBody
+	ModifyOrderRequest  = generated.ModifyOrderJSONRequestBody
 	OrderChargesRequest = generated.OrderChargesJSONRequestBody
 	OrderMarginRequest  = generated.OrderMarginJSONRequestBody
 )

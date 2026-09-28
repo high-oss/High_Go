@@ -69,8 +69,8 @@ func TestPortfolioFundsReturnsBalances(t *testing.T) {
 		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
 			"availableBalance": 125000.5, "ledgerBalance": 150000, "todaysBalance": 155000.5,
 			"marginUtilized": 30000, "marginAgainstAssets": 50000, "todaysPayIn": 10000, "todaysPayout": 5000,
-			"mtfFunds":            map[string]any{"mtfCash": 0, "mtfFunded": 0, "totalMTFFunding": 0},
-			"charges":             map[string]any{"delayedPaymentCharges": 0, "dpCharges": 0, "totalCharges": 0},
+			"mtfFunds":              map[string]any{"mtfCash": 0, "mtfFunded": 0, "totalMTFFunding": 0},
+			"charges":               map[string]any{"delayedPaymentCharges": 0, "dpCharges": 0, "totalCharges": 0},
 			"unsettledFutureAmount": 0,
 		}))
 	})
