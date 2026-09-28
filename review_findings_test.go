@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 )
@@ -224,5 +225,43 @@ func TestExpiryTypeMatchesThePinnedSpecEnum(t *testing.T) {
 	}
 	if string(ExpiryTypeFutures) != "futures" || string(ExpiryTypeOptions) != "options" {
 		t.Fatalf("ExpiryType constants = %q / %q", ExpiryTypeFutures, ExpiryTypeOptions)
+	}
+}
+
+// Conformance item 15: error-code constants must still match the pinned
+// spec's documented catalogue (Error.code['x-error-codes']), not just look
+// plausible by eyeball.
+func TestErrorCodesMatchesThePinnedSpecCatalogue(t *testing.T) {
+	data, err := os.ReadFile("generated/openapi.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Components struct {
+			Schemas struct {
+				Error struct {
+					Properties struct {
+						Code struct {
+							XErrorCodes []string `json:"x-error-codes"`
+						} `json:"code"`
+					} `json:"properties"`
+				} `json:"Error"`
+			} `json:"schemas"`
+		} `json:"components"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		t.Fatal(err)
+	}
+	want := doc.Components.Schemas.Error.Properties.Code.XErrorCodes
+	if len(want) == 0 {
+		t.Fatal("pinned spec's x-error-codes came back empty — check the JSON path")
+	}
+	if len(ErrorCodes) != len(want) {
+		t.Fatalf("ErrorCodes has %d entries, pinned spec has %d", len(ErrorCodes), len(want))
+	}
+	for i := range want {
+		if ErrorCodes[i] != want[i] {
+			t.Fatalf("ErrorCodes[%d] = %q, pinned spec says %q", i, ErrorCodes[i], want[i])
+		}
 	}
 }
