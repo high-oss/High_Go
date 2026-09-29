@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 
@@ -100,10 +101,12 @@ func TestExcludedAuthOperationsDoNotExist(t *testing.T) {
 	}
 }
 
-// The only dependency this module declares is the oapi-codegen runtime
-// support package the generated types need (UUID/Date helpers, the
-// Error.message oneOf union) — no hand-written business logic depends on
-// anything outside the standard library.
+// The only two dependencies this module declares are the oapi-codegen
+// runtime support package the generated types need (UUID/Date helpers, the
+// Error.message oneOf union) and coder/websocket, the one new runtime
+// dependency the datafeed socket is permitted (contract §9) — no
+// hand-written business logic depends on anything else outside the standard
+// library.
 func TestGoModDeclaresOnlyTheCodegenRuntimeDependency(t *testing.T) {
 	data, err := os.ReadFile("go.mod")
 	if err != nil {
@@ -124,8 +127,10 @@ func TestGoModDeclaresOnlyTheCodegenRuntimeDependency(t *testing.T) {
 			direct = append(direct, fieldsFirst(trimmed))
 		}
 	}
-	if len(direct) != 1 || direct[0] != "github.com/oapi-codegen/runtime" {
-		t.Fatalf("go.mod direct requires = %v, want exactly [github.com/oapi-codegen/runtime]", direct)
+	want := []string{"github.com/coder/websocket", "github.com/oapi-codegen/runtime"}
+	sort.Strings(direct)
+	if !sameSet(direct, want) || len(direct) != len(want) {
+		t.Fatalf("go.mod direct requires = %v, want exactly %v", direct, want)
 	}
 }
 

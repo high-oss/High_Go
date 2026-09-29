@@ -5,6 +5,7 @@ package highopenapi_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 	"net/url"
 
 	highopenapi "github.com/high-oss/High_Go"
+
+	"github.com/coder/websocket"
 )
 
 // Example is the quickstart from the README, made runnable and verified by
@@ -118,4 +121,65 @@ func Example_instruments() {
 		break
 	}
 	// Output: RELIANCE-EQ 2885
+}
+
+// Example_feed subscribes to live quotes for one scrip and prints the first
+// tick. A local WebSocket server stands in for the real datafeed host --
+// openapi-feed.high.live is production-only and is never dialled by this
+// suite (there is no sandbox feed; see Feed's own doc comment and
+// NewFeed). A real program passes Environment: highopenapi.EnvironmentProduction
+// (or leaves Environment unset) instead of WSBaseURL.
+func Example_feed() {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{InsecureSkipVerify: true})
+		if err != nil {
+			return
+		}
+		ctx := r.Context()
+
+		// Auth: read the {"type":"cn",...} frame, then acknowledge it with
+		// the two limits Feed must honour.
+		if _, _, err := conn.Read(ctx); err != nil {
+			return
+		}
+		ack, _ := json.Marshal(map[string]any{
+			"stat": "Ok", "type": "cn", "msg": "successful", "stCode": 200,
+			"maxScripPerConn": 500, "maxScripPerReq": 200, "sType": "v2.0",
+		})
+		if err := conn.Write(ctx, websocket.MessageText, ack); err != nil {
+			return
+		}
+
+		// The subscribe request, then one market-watch tick.
+		if _, _, err := conn.Read(ctx); err != nil {
+			return
+		}
+		tick, _ := json.Marshal([]map[string]any{
+			{"name": "sf", "e": "nse_cm", "tk": "2885", "ts": "RELIANCE-EQ", "ltp": "1905.65", "op": "1900.00"},
+		})
+		conn.Write(ctx, websocket.MessageText, tick)
+		<-ctx.Done()
+	}))
+	defer srv.Close()
+
+	feed, err := highopenapi.NewFeed(highopenapi.Options{
+		WSBaseURL:   "ws" + srv.URL[len("http"):], // in a real program: Environment: highopenapi.EnvironmentProduction
+		AccessToken: "your-access-token",
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer feed.Close()
+
+	ctx := context.Background()
+	if err := feed.Connect(ctx); err != nil {
+		panic(err)
+	}
+	if err := feed.SubscribeQuotes(ctx, []string{"NSE@2885"}); err != nil {
+		panic(err)
+	}
+
+	quote := <-feed.Quotes()
+	fmt.Println(quote.ScripKey, quote.LastTradedPrice)
+	// Output: NSE@2885 1905.65
 }

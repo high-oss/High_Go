@@ -53,7 +53,7 @@ See `Example` and `Example_errors` in `example_test.go` for a runnable,
 |---|---|---|
 | `Environment` | `EnvironmentProduction` | `EnvironmentProduction` or `EnvironmentSandbox` |
 | `BaseURL` | from `Environment` | Overrides the REST host |
-| `WSBaseURL` | from `Environment` | Datafeed socket host, reserved for the feed client |
+| `WSBaseURL` | from `Environment` | Datafeed socket host, used by `Feed` (see [Live datafeed](#live-datafeed)) |
 | `VersionPath` | `"v1"` | The segment between host and operation path. `nil` means "not set"; `Ptr("")` is a valid, explicit unversioned host |
 | `APIKey` | `HIGH_API_KEY` | Sent as `x-api-key`, for `Auth.GenerateAccessToken` |
 | `AccessToken` | `HIGH_ACCESS_TOKEN` | Sent as `Authorization: Bearer` |
@@ -324,10 +324,112 @@ intraday — cache it for the day rather than re-fetching on every call.
 
 ## Live datafeed
 
-Not in this release. `Options.WSBaseURL` is resolved onto the client's
-config for a future `Feed` client to reuse, alongside the same credentials —
-matching the REST client's config rather than introducing a second config
-surface. No socket code ships here.
+`Feed` is a second client alongside `Client`, built from the same `Options`
+and credentials, for live market data. It is **production only** — the host
+is `openapi-feed.high.live`, resolved automatically the same way `Client`'s
+host is. There is no sandbox feed: `NewFeed` refuses to build one for
+`Environment: EnvironmentSandbox` (or `HIGH_ENVIRONMENT=sandbox`), rather
+than quietly connecting to production.
+
+```go
+feed, err := highopenapi.NewFeed(highopenapi.Options{AccessToken: os.Getenv("HIGH_ACCESS_TOKEN")})
+if err != nil {
+	log.Fatal(err)
+}
+defer feed.Close()
+
+ctx := context.Background()
+if err := feed.Connect(ctx); err != nil {
+	log.Fatal(err)
+}
+if err := feed.SubscribeQuotes(ctx, []string{"NSE@2885", "NSE@22"}); err != nil {
+	log.Fatal(err)
+}
+
+for quote := range feed.Quotes() {
+	fmt.Println(quote.ScripKey, quote.LastTradedPrice, quote.Changed)
+}
+```
+
+See `Example_feed` in `example_test.go` for a runnable, `go test`-checked
+version of this against a local server.
+
+**Subscribing.** You subscribe with HIGH scrip keys — the same
+`NSE@2885`-shaped keys `Instrument.ScripKey` and every other method use.
+There are three pairs of methods, one per kind of data, instead of a single
+method taking a "kind" argument — this way a caller can never pass an index
+key to the quote methods (or an equity key to the index methods) and have it
+silently do the wrong thing:
+
+| Method | Delivered on |
+|---|---|
+| `SubscribeQuotes` / `UnsubscribeQuotes` | `Quotes()` (plus `Depths()` for any top-of-book fields the same tick carries) |
+| `SubscribeDepth` / `UnsubscribeDepth` | `Depths()`, five order-book levels |
+| `SubscribeIndices` / `UnsubscribeIndices` | `Indices()` |
+
+`SnapshotQuotes`, `SnapshotDepth` and `SnapshotIndices` request one
+immediate update without a standing subscription, delivered the same way an
+ordinary update is.
+
+`SubscribeIndices` only accepts a key in the SDK's own committed index
+table — a handful of index keys have no live counterpart, or the scrip
+master genuinely shares one key between two different indices, and both
+cases are refused with a clear error rather than a guess. `SubscribeQuotes`
+and `SubscribeDepth` refuse an index key outright, pointing you at
+`SubscribeIndices` instead — an index key silently treated as an equity
+token would be accepted and then simply never tick, which looks exactly
+like a dead instrument.
+
+Every `Subscribe`/`Unsubscribe`/`Snapshot` method takes `context.Context`
+first, like every other method in this SDK.
+
+**Typed models.** `Quotes()`, `Depths()` and `Indices()` each deliver a
+complete, merged `Quote`, `Depth` or `Index` — every update from the feed is
+a partial delta, and this package owns the merge, so you always receive the
+instrument's full current state, keyed by the scrip key you subscribed
+with (`ScripKey`), never a feed-internal identifier. `Changed` lists exactly
+which fields this particular update touched, for a caller who wants to know
+what moved; `Extra` carries any field the feed sends that this SDK does not
+yet know about, so a vendor addition reaches you instead of vanishing.
+
+`Depth.Levels` and `Depth.Source` say what book you are looking at: a
+one-level top-of-book split out of a quote tick (`Levels` 1, `Source`
+`DepthSourceQuote`), or the feed's own five-level book from
+`SubscribeDepth` (`Levels` 5, `DepthSourceDepth`). The two are never
+conflated — a one-level book is never padded out to look like a five-level
+one.
+
+Prices and other money-shaped fields are `Decimal`, not `float64` — the feed
+sends them as exact decimal strings, and this SDK never routes them through
+a binary float. Call `.Float64()` if you have decided an approximation is
+fine for your use case (charting, say); nothing in this package does that
+for you. Timestamps (`LastTradedTime`, `FeedTime`) are `time.Time` in IST —
+the feed sends no timezone of its own, and IST is what it means.
+
+**Errors.** `Connect` returns a `*FeedAuthError` (carrying `StCode`, `Msg`
+and a best-effort `Kind` — `FeedAuthErrorNoDataPlan`,
+`FeedAuthErrorInvalidToken`, `FeedAuthErrorMalformedRequest`, or
+`FeedAuthErrorUnknown`) when the server refuses the connection outright —
+most commonly no active Data API subscription, or an invalid or expired
+access token. This is never retried and never triggers a reconnect: the
+server will keep refusing. `Subscribe*` returns a `*FeedLimitError` when a
+subscription would exceed the connection-wide limit the server declared at
+connect time; large subscriptions are already split across requests
+automatically to stay under the per-request limit.
+
+**Reconnection.** A transport failure (not an auth failure) triggers an
+automatic reconnect with backoff: `Feed` re-authenticates and re-subscribes
+everything you had subscribed before resuming delivery. A reconnect that
+fails to re-authenticate stops retrying and reports the failure on
+`Errors()` rather than looping forever against a server that will keep
+refusing. Cancelling the `context.Context` passed to `Connect` (or calling
+`Close`) closes the socket and every delivery channel; `Feed` is safe for
+concurrent use.
+
+**Dependency.** `Feed` is built on
+[`github.com/coder/websocket`](https://github.com/coder/websocket), the one
+new runtime dependency this SDK adds beyond the oapi-codegen runtime
+support package.
 
 ## Regenerating
 

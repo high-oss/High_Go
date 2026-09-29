@@ -47,8 +47,9 @@ func TestResolveConfigSandboxHost(t *testing.T) {
 	}
 }
 
-// Reserved for the datafeed socket (contract §9): resolving it here means the
-// feed reuses this configuration instead of introducing a second one.
+// The datafeed client (Feed, contract §9) resolves its host here too, so it
+// reuses this configuration and these credentials instead of introducing a
+// second config surface.
 func TestResolveConfigWebsocketHost(t *testing.T) {
 	if mustResolve(t, Options{}).wsBaseURL != Environments[EnvironmentProduction].WS {
 		t.Fatal("production wsBaseURL mismatch")
@@ -56,6 +57,26 @@ func TestResolveConfigWebsocketHost(t *testing.T) {
 	config := mustResolve(t, Options{Environment: EnvironmentSandbox})
 	if config.wsBaseURL != Environments[EnvironmentSandbox].WS {
 		t.Fatal("sandbox wsBaseURL mismatch")
+	}
+}
+
+// Pins the production feed host as a literal, deliberately not just against
+// Environments (which TestResolveConfigWebsocketHost already does): this is
+// the "prove the default without dialling it" assertion for
+// openapi-feed.high.live, which is not deployed yet and must never be
+// connected to by anything in this suite. Sandbox is pinned empty too --
+// "the sandbox entry stays absent on purpose" (datafeed plan, Phase 2):
+// there is no sandbox feed, and NewFeed refuses to build one (see
+// TestFeedSandboxRefusedAtConstruction).
+func TestResolveConfigWebsocketHostDefaultsToTheRealFeedHost(t *testing.T) {
+	if got := Environments[EnvironmentProduction].WS; got != "wss://openapi-feed.high.live" {
+		t.Fatalf("production feed host = %q, want wss://openapi-feed.high.live", got)
+	}
+	if got := Environments[EnvironmentSandbox].WS; got != "" {
+		t.Fatalf("sandbox feed host = %q, want empty (no sandbox feed)", got)
+	}
+	if got := mustResolve(t, Options{}).wsBaseURL; got != "wss://openapi-feed.high.live" {
+		t.Fatalf("resolved default wsBaseURL = %q, want wss://openapi-feed.high.live", got)
 	}
 }
 

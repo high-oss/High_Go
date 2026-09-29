@@ -185,6 +185,9 @@ var sensitiveKeys = map[string]bool{
 	"tOtp": true, "totp": true, "otp": true, "apiKey": true, "accessToken": true,
 	"refreshToken": true, "tokenId": true, "stepToken": true, "password": true,
 	"pin": true, "authorization": true,
+	// sessionid is the datafeed's own name for the access token, carried in
+	// the {"type":"cn","sessionid":...} auth frame (contract §9).
+	"sessionid": true,
 }
 
 // maxLoggedJSON: above this, a logged payload is replaced by a note rather

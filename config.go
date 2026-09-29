@@ -21,9 +21,13 @@ const (
 
 // EnvironmentHosts is the REST and datafeed-socket host for one environment.
 //
-// WS is reserved for the datafeed client, which is not in this release (see
-// contract §9) — it is resolved here so that client reuses this configuration
-// and these credentials rather than introducing a second config surface.
+// WS is the datafeed client's host. Feed resolves it through the same
+// resolveConfig as Client so both reuse one configuration and one set of
+// credentials rather than introducing a second config surface. Production's
+// WS is the feed's real host; sandbox's is deliberately empty -- there is no
+// sandbox feed (datafeed plan, Phase 2: "the sandbox entry stays absent on
+// purpose"), and NewFeed refuses to build a Feed whose resolved environment
+// is sandbox rather than silently leaving WS unusable.
 type EnvironmentHosts struct {
 	API string
 	WS  string
@@ -31,10 +35,10 @@ type EnvironmentHosts struct {
 
 // Environments maps each environment to its API host, taken from the spec's
 // `servers` block by its `x-environment` name, and its datafeed-socket host.
-// A test asserts this still matches the pinned spec.
+// A test asserts the API hosts still match the pinned spec.
 var Environments = map[Environment]EnvironmentHosts{
-	EnvironmentProduction: {API: "https://openapi.high.live", WS: "wss://openapi.high.live"},
-	EnvironmentSandbox:    {API: "https://sandbox.high.live", WS: "wss://sandbox.high.live"},
+	EnvironmentProduction: {API: "https://openapi.high.live", WS: "wss://openapi-feed.high.live"},
+	EnvironmentSandbox:    {API: "https://sandbox.high.live", WS: ""},
 }
 
 // Ptr is a small convenience for building the pointer-typed Options fields —
@@ -98,6 +102,13 @@ type Options struct {
 // can read them off a live config, and Client.String/GoString redact
 // explicitly on top of that as defense in depth (contract §7).
 type resolvedConfig struct {
+	// environment is the resolved environment itself -- production unless
+	// Options.Environment or HIGH_ENVIRONMENT explicitly said otherwise.
+	// Kept independently of baseURL/wsBaseURL (which an explicit BaseURL/
+	// WSBaseURL can override outright) purely so NewFeed can refuse a Feed
+	// whose caller explicitly asked for sandbox, even if they also happened
+	// to override WSBaseURL -- see NewFeed.
+	environment             Environment
 	baseURL                 string
 	wsBaseURL               string
 	versionPath             string
@@ -240,6 +251,7 @@ func resolveConfig(opts Options) (*resolvedConfig, error) {
 	}
 
 	return &resolvedConfig{
+		environment:             environment,
 		baseURL:                 strings.TrimRight(baseURL, "/"),
 		wsBaseURL:               strings.TrimRight(wsBaseURL, "/"),
 		versionPath:             versionPath,
