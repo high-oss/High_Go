@@ -7,3 +7,8 @@ All notable changes to this project are documented in this file.
 Initial release. Covers 24 of the 27 HIGH Open API operations (`auth`,
 `orders`, `portfolio`, `scrips`, `market`) per the SDK shared contract. Types
 generated from `High/sdk/spec` at commit `339cdc084dd75a952d9d5cc11636c49dd98d00cf`.
+
+Added `Instruments`, a sixth resource covering the instrument list (the scrip
+master) across its five categories — a streaming `Stream` iterator and an
+eager `List`, both needing no credentials. Types regenerated from `High/sdk/spec`
+at commit `97cc3af3df39c0252b55306d9ce56accdad65c02`.

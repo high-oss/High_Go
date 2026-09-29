@@ -79,6 +79,12 @@ type Options struct {
 	LogSink LogSink
 	// HTTPClient overrides the transport, for tests or a proxy-aware client.
 	HTTPClient *http.Client
+	// InstrumentsAllowedHosts is the allowlist of hosts Instruments.Stream and
+	// Instruments.List may download the instrument list from. nil means "not
+	// set" (default: the CDN host the instrument list is published under
+	// today). A file whose host is not on this list is refused before any
+	// request for it is made.
+	InstrumentsAllowedHosts []string
 
 	// getenv backs environment-variable resolution. Exposed only for tests;
 	// production callers never set it (New defaults it to os.Getenv).
@@ -92,18 +98,19 @@ type Options struct {
 // can read them off a live config, and Client.String/GoString redact
 // explicitly on top of that as defense in depth (contract §7).
 type resolvedConfig struct {
-	baseURL         string
-	wsBaseURL       string
-	versionPath     string
-	apiKey          string
-	accessToken     string
-	timeoutMs       int
-	maxRetries      int
-	maxRetryDelayMs int
-	userAgent       string
-	logLevel        LogLevel
-	logger          *logger
-	httpClient      *http.Client
+	baseURL                 string
+	wsBaseURL               string
+	versionPath             string
+	apiKey                  string
+	accessToken             string
+	timeoutMs               int
+	maxRetries              int
+	maxRetryDelayMs         int
+	userAgent               string
+	logLevel                LogLevel
+	logger                  *logger
+	httpClient              *http.Client
+	instrumentsAllowedHosts []string
 }
 
 const defaultUserAgent = "high-sdk-go/0.0.1"
@@ -227,19 +234,25 @@ func resolveConfig(opts Options) (*resolvedConfig, error) {
 		httpClient = http.DefaultClient
 	}
 
+	instrumentsAllowedHosts := opts.InstrumentsAllowedHosts
+	if instrumentsAllowedHosts == nil {
+		instrumentsAllowedHosts = []string{defaultInstrumentsAllowedHost}
+	}
+
 	return &resolvedConfig{
-		baseURL:         strings.TrimRight(baseURL, "/"),
-		wsBaseURL:       strings.TrimRight(wsBaseURL, "/"),
-		versionPath:     versionPath,
-		apiKey:          apiKey,
-		accessToken:     accessToken,
-		timeoutMs:       timeoutMs,
-		maxRetries:      maxRetries,
-		maxRetryDelayMs: maxRetryDelayMs,
-		userAgent:       userAgent,
-		logLevel:        logLevel,
-		logger:          newLogger(logLevel, opts.LogSink),
-		httpClient:      httpClient,
+		baseURL:                 strings.TrimRight(baseURL, "/"),
+		wsBaseURL:               strings.TrimRight(wsBaseURL, "/"),
+		versionPath:             versionPath,
+		apiKey:                  apiKey,
+		accessToken:             accessToken,
+		timeoutMs:               timeoutMs,
+		maxRetries:              maxRetries,
+		maxRetryDelayMs:         maxRetryDelayMs,
+		userAgent:               userAgent,
+		logLevel:                logLevel,
+		logger:                  newLogger(logLevel, opts.LogSink),
+		httpClient:              httpClient,
+		instrumentsAllowedHosts: instrumentsAllowedHosts,
 	}, nil
 }
 

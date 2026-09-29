@@ -37,7 +37,24 @@ type Handler func(w http.ResponseWriter, r *http.Request, index int)
 // StartTestServer starts a TestServer. Callers must Close it.
 func StartTestServer(handler Handler) *TestServer {
 	ts := &TestServer{}
-	ts.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts.Server = httptest.NewServer(ts.wrap(handler))
+	return ts
+}
+
+// StartTLSTestServer is StartTestServer over TLS with a self-signed
+// certificate, for the one case a plain-HTTP local server cannot stand in
+// for: the instrument list's https-only validation (Review Focus 3) refuses
+// anything else, so proving a download actually succeeds needs a real https
+// exchange. ts.Client() (embedded from *httptest.Server) is pre-configured
+// to trust the certificate.
+func StartTLSTestServer(handler Handler) *TestServer {
+	ts := &TestServer{}
+	ts.Server = httptest.NewTLSServer(ts.wrap(handler))
+	return ts
+}
+
+func (ts *TestServer) wrap(handler Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		ts.mu.Lock()
 		index := len(ts.Requests)
@@ -49,8 +66,7 @@ func StartTestServer(handler Handler) *TestServer {
 		})
 		ts.mu.Unlock()
 		handler(w, r, index)
-	}))
-	return ts
+	}
 }
 
 // Count returns how many requests this server has received so far.

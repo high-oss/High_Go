@@ -29,6 +29,33 @@ func (e ExpiryType) Valid() bool {
 	}
 }
 
+// Defines values for InstrumentFileInstrument.
+const (
+	All         InstrumentFileInstrument = "all"
+	Commodity   InstrumentFileInstrument = "commodity"
+	Derivatives InstrumentFileInstrument = "derivatives"
+	Equity      InstrumentFileInstrument = "equity"
+	Etfs        InstrumentFileInstrument = "etfs"
+)
+
+// Valid indicates whether the value is a known member of the InstrumentFileInstrument enum.
+func (e InstrumentFileInstrument) Valid() bool {
+	switch e {
+	case All:
+		return true
+	case Commodity:
+		return true
+	case Derivatives:
+		return true
+	case Equity:
+		return true
+	case Etfs:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OrderFlavor.
 const (
 	OrderFlavorBO      OrderFlavor = "BO"
@@ -1076,6 +1103,42 @@ type Holdings struct {
 	// Snapshot Invested and current value with day and total change. Used by holdings.
 	Snapshot    InvestmentSnapshot `json:"snapshot"`
 	TotalStocks int                `json:"totalStocks"`
+}
+
+// InstrumentFile One downloadable instrument list. `bytes` and `checksum` describe exactly what the URL served when the list was built, so a caller can verify a download and skip one it already holds.
+type InstrumentFile struct {
+	// Bytes Size of the file in bytes.
+	Bytes int `json:"bytes"`
+
+	// Checksum MD5 of the file contents, hex encoded.
+	Checksum string `json:"checksum"`
+
+	// Instrument Which scrips this file covers.
+	Instrument InstrumentFileInstrument `json:"instrument"`
+
+	// Rows Data rows, excluding the header.
+	Rows int `json:"rows"`
+
+	// UpdatedAt When this file was last published.
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	// Url Direct HTTPS download. Needs no API key and no access token. Treat it as opaque and read it from here rather than hardcoding it — it can move.
+	Url string `json:"url"`
+}
+
+// InstrumentFileInstrument Which scrips this file covers.
+type InstrumentFileInstrument string
+
+// InstrumentsManifest Where to download the instrument list (the scrip master) and what each file contains. Rebuilt every trading weekday by about 08:40 IST; it does not change intraday, so download once a day and cache it.
+type InstrumentsManifest struct {
+	// Columns The CSV header, in file order. Validate a downloaded file's header against this rather than assuming a fixed column order.
+	Columns []string `json:"columns"`
+
+	// Files One entry per published category.
+	Files []InstrumentFile `json:"files"`
+
+	// GeneratedAt When this manifest was built.
+	GeneratedAt time.Time `json:"generatedAt"`
 }
 
 // InvestmentSnapshot Invested and current value with day and total change. Used by holdings.

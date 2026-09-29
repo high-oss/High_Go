@@ -15,11 +15,12 @@ package highopenapi
 type Client struct {
 	config *resolvedConfig
 
-	Auth      *AuthResource
-	Market    *MarketResource
-	Orders    *OrdersResource
-	Portfolio *PortfolioResource
-	Scrips    *ScripsResource
+	Auth        *AuthResource
+	Instruments *InstrumentsResource
+	Market      *MarketResource
+	Orders      *OrdersResource
+	Portfolio   *PortfolioResource
+	Scrips      *ScripsResource
 }
 
 // New builds a Client. Every invalid option — an unknown environment, an
@@ -34,12 +35,13 @@ func New(opts Options) (*Client, error) {
 		return nil, err
 	}
 	return &Client{
-		config:    config,
-		Auth:      &AuthResource{config: config},
-		Market:    &MarketResource{config: config},
-		Orders:    &OrdersResource{config: config},
-		Portfolio: &PortfolioResource{config: config},
-		Scrips:    &ScripsResource{config: config},
+		config:      config,
+		Auth:        &AuthResource{config: config},
+		Instruments: &InstrumentsResource{config: config},
+		Market:      &MarketResource{config: config},
+		Orders:      &OrdersResource{config: config},
+		Portfolio:   &PortfolioResource{config: config},
+		Scrips:      &ScripsResource{config: config},
 	}, nil
 }
 

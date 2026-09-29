@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 
 	highopenapi "github.com/high-oss/High_Go"
 )
@@ -63,4 +64,58 @@ func Example_errors() {
 		fmt.Println(apiErr.Status, apiErr.Code)
 	}
 	// Output: 400 ORDER_REJECTED
+}
+
+// Example_instruments streams the equity instrument list and prints the
+// first row. It needs no credentials — Instruments is the one resource that
+// does not. Two local servers stand in for the real HIGH API and the file's
+// real host; a real program only ever talks to the former.
+func Example_instruments() {
+	const csv = "exchange,segment,instrument,high_trading_symbol,scrip_key,isin,scrip_code,symbol,name,group_series,has_fno,underlying_symbol,expiry,option_type,strike_price,price_tick,lot_size\n" +
+		"NSE,ES,EQUITY,RELIANCE-EQ,NSE@2885,INE002A01018,2885,RELIANCE,Reliance Industries,EQ,1,RELIANCE,,,,5,1\n"
+
+	files := highopenapi.StartTLSTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		w.Header().Set("Content-Type", "text/csv")
+		fmt.Fprint(w, csv)
+	})
+	defer files.Close()
+
+	api := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
+			"generatedAt": "2026-09-29T02:53:10.000Z",
+			"columns": []string{
+				"exchange", "segment", "instrument", "high_trading_symbol", "scrip_key", "isin",
+				"scrip_code", "symbol", "name", "group_series", "has_fno", "underlying_symbol",
+				"expiry", "option_type", "strike_price", "price_tick", "lot_size",
+			},
+			"files": []map[string]any{
+				{"instrument": "equity", "url": files.URL + "/equity.csv", "bytes": len(csv), "rows": 1,
+					"checksum": "d41d8cd98f00b204e9800998ecf8427e", "updatedAt": "2026-09-29T02:53:09.000Z"},
+			},
+		}))
+	})
+	defer api.Close()
+
+	filesHost, err := url.Parse(files.URL)
+	if err != nil {
+		panic(err)
+	}
+
+	high, err := highopenapi.New(highopenapi.Options{
+		BaseURL:                 api.URL,
+		HTTPClient:              files.Client(), // trusts the local files server's certificate
+		InstrumentsAllowedHosts: []string{filesHost.Hostname()},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	for instrument, err := range high.Instruments.Stream(context.Background(), highopenapi.InstrumentEquity) {
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(instrument.TradingSymbol, instrument.ScripCode)
+		break
+	}
+	// Output: RELIANCE-EQ 2885
 }

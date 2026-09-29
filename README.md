@@ -64,6 +64,7 @@ See `Example` and `Example_errors` in `example_test.go` for a runnable,
 | `LogSink` | stderr | Where log lines go |
 | `UserAgent` | — | Appended to the SDK's own |
 | `HTTPClient` | `http.DefaultClient` | Transport override |
+| `InstrumentsAllowedHosts` | the instrument list's CDN host | Hosts the instrument list may be downloaded from; a file whose host is not on this list is refused before any request is made |
 
 `TimeoutMs`, `MaxRetries`, `MaxRetryDelayMs` and `VersionPath` are `*int`/
 `*string` rather than plain values, because their zero value is a real,
@@ -234,6 +235,92 @@ holdings.Snapshot.Investment
 // An OptionLeg may be entirely empty (every field is optional), and its
 // Touchline may be nil when the quote feed has no entry for that strike.
 ```
+
+## Instrument list
+
+`Instruments` fetches the scrip master — every scrip HIGH knows, per
+category — as the `Instrument` type. It needs no credentials at all: no
+`APIKey`, no `AccessToken`. Five categories are published:
+
+| Category | Constant | Covers |
+|---|---|---|
+| `all` | `InstrumentAll` | Every scrip |
+| `equity` | `InstrumentEquity` | NSE/BSE cash |
+| `derivatives` | `InstrumentDerivatives` | NSE/BSE futures and options |
+| `commodity` | `InstrumentCommodity` | MCX futures, options and spot |
+| `etfs` | `InstrumentEtfs` | NSE/BSE ETFs |
+
+The streaming form is the primary API — `all` and `derivatives` run into the
+tens of megabytes, so reading the whole thing into memory first is
+unfriendly by default:
+
+```go
+for instrument, err := range high.Instruments.Stream(ctx, highopenapi.InstrumentEquity) {
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(instrument.TradingSymbol, instrument.ScripCode)
+}
+```
+
+`List` is the eager form, for when you genuinely want every row in memory at once:
+
+```go
+rows, err := high.Instruments.List(ctx, highopenapi.InstrumentEquity)
+```
+
+Both take `context.Context` first; breaking out of `Stream`'s loop early
+closes the underlying connection cleanly. The two largest files can take
+longer than the client's default 30s `TimeoutMs` to download on a slow
+connection — that setting still governs ordinary operations, but a fetch
+here is bounded only by the context you pass, so give it a longer deadline
+rather than raising the client-wide default:
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+defer cancel()
+rows, err := high.Instruments.List(ctx, highopenapi.InstrumentAll)
+```
+
+Each row is an `Instrument` with all 17 columns:
+
+| Field | Type | Notes |
+|---|---|---|
+| `Exchange` | `string` | `NSE`, `BSE` or `MCX` |
+| `Segment` | `string` | |
+| `InstrumentType` | `string` | e.g. `EQUITY`, `IDX`, `FUTSTK`, `OPTSTK` |
+| `TradingSymbol` | `string` | The symbol every other operation takes |
+| `ScripKey` | `string` | e.g. `NSE@2885` |
+| `ISIN` | `string` | Blank where not applicable |
+| `ScripCode` | `int` | Broker-assigned numeric ID |
+| `Symbol` | `string` | |
+| `Name` | `string` | |
+| `GroupSeries` | `string` | |
+| `HasFnO` | `int` | `0`/`1` |
+| `UnderlyingSymbol` | `string` | Blank for a non-derivative |
+| `Expiry` | `string` | Date; blank outside derivatives |
+| `OptionType` | `string` | Blank outside options |
+| `StrikePrice` | `*float64` | `nil` when blank — see below |
+| `PriceTick` | `int` | **Not normalised** — see below |
+| `LotSize` | `int` | |
+
+Every field is its plain zero value when the CSV cell is blank, except
+`StrikePrice`. `ScripCode`, `HasFnO`, `PriceTick` and `LotSize` never take a
+genuine zero in real data — no real broker token, lot size or price tick is
+`0`, and `HasFnO`'s own false state *is* zero — so a blank cell and a real
+value can never be confused for these four. `StrikePrice` is different:
+every non-option row has no strike at all, and a caller might reasonably
+compare a strike against `0` somewhere downstream, so leaving it a plain
+`float64` would let a blank cell silently read as "strike price zero"
+instead of "not applicable". It is `*float64`: `nil` means the cell was
+blank.
+
+`PriceTick` is carried exactly as published, unnormalised — its scale
+(paise, rupees, or something else) varies by segment, and rescaling it here
+would be a silent pricing bug baked into every caller.
+
+The list is rebuilt once each trading morning and does not change
+intraday — cache it for the day rather than re-fetching on every call.
 
 ## Live datafeed
 

@@ -22,8 +22,8 @@ func TestGeneratedTypesCoverEveryOperation(t *testing.T) {
 			}
 		}
 	}
-	if count != 27 {
-		t.Fatalf("expected 27 operations in the pinned spec, got %d", count)
+	if count != 28 {
+		t.Fatalf("expected 28 operations in the pinned spec, got %d", count)
 	}
 }
 
@@ -43,4 +43,11 @@ func TestGeneratedSchemasExposeExpectedFields(t *testing.T) {
 	_ = scripCodeOnOrder
 	var scripCodeOnScripInfo int = generated.ScripInfo{}.ScripCode
 	_ = scripCodeOnScripInfo
+
+	manifest := generated.InstrumentsManifest{Columns: []string{"exchange"}, Files: []generated.InstrumentFile{
+		{Instrument: generated.Equity, Url: "https://example.test/f.csv", Bytes: 1, Rows: 1, Checksum: "x"},
+	}}
+	if len(manifest.Files) != 1 || manifest.Files[0].Instrument != generated.Equity {
+		t.Fatal("InstrumentsManifest/InstrumentFile round-trip failed")
+	}
 }

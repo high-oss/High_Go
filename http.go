@@ -24,6 +24,11 @@ type authKind int
 const (
 	authBearer authKind = iota
 	authAPIKey
+	// authNone attaches neither credential. Used for the instrument list
+	// manifest, which the spec marks `security: []` — it and the CSV files it
+	// points at are public, and the CSV host is a third-party CDN that must
+	// never see the caller's bearer token or API key.
+	authNone
 )
 
 // requestOptions describes one operation call. path is the operation path
