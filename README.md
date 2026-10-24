@@ -237,6 +237,46 @@ holdings.Snapshot.Investment
 // Touchline may be nil when the quote feed has no entry for that strike.
 ```
 
+Intraday takes the same two ways of naming an instrument as Historical, and
+returns the same columnar shape, for the most recent trading session:
+
+```go
+candles, _ := high.Scrips.Intraday(ctx, highopenapi.IntradayRequest{
+	TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"), Interval: "5m",
+})
+// or, by scrip code:
+candles, _ = high.Scrips.Intraday(ctx, highopenapi.IntradayRequest{
+	ExchangeSegment: highopenapi.Ptr(generated.IntradayJSONBodyExchangeSegmentNSE),
+	ScripCode:       highopenapi.Ptr("2885"), Interval: "5m",
+})
+```
+
+### Stop-loss and target
+
+`SetStoploss` and `SetTarget` place an exit order for an open position, or
+amend the existing one. The quantity comes from the live position, so you send
+only the price. Both return a `generated.PositionRiskOrderResult`, with
+`Action` (`PLACED` or `MODIFIED`), `OrderId` and `LimitPrice`.
+
+```go
+res, _ := high.Portfolio.SetStoploss(ctx, highopenapi.SetStoplossRequest{
+	TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+	ProductType:   generated.SetPositionStoplossJSONBodyProductTypeINTRADAY,
+	Flavor:        generated.SetPositionStoplossJSONBodyFlavorREGULAR,
+	TriggerPrice:  2400,
+})
+res, _ = high.Portfolio.SetTarget(ctx, highopenapi.SetTargetRequest{
+	TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+	ProductType:   generated.SetPositionTargetJSONBodyProductTypeINTRADAY,
+	Flavor:        generated.SetPositionTargetJSONBodyFlavorREGULAR,
+	TargetPrice:   2450,
+})
+```
+
+These calls place live orders. They need a static IP registered with HIGH,
+and they are never retried. After a timeout, check the position's orders
+before you send the call again.
+
 ## Instrument list
 
 `Instruments` fetches the scrip master — every scrip HIGH knows, per
