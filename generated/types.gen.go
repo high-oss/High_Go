@@ -248,6 +248,66 @@ func (e PositionExitResultFlavor) Valid() bool {
 	}
 }
 
+// Defines values for PositionRiskOrderResultAction.
+const (
+	MODIFIED PositionRiskOrderResultAction = "MODIFIED"
+	PLACED   PositionRiskOrderResultAction = "PLACED"
+)
+
+// Valid indicates whether the value is a known member of the PositionRiskOrderResultAction enum.
+func (e PositionRiskOrderResultAction) Valid() bool {
+	switch e {
+	case MODIFIED:
+		return true
+	case PLACED:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PositionRiskOrderResultFlavor.
+const (
+	PositionRiskOrderResultFlavorBO      PositionRiskOrderResultFlavor = "BO"
+	PositionRiskOrderResultFlavorCO      PositionRiskOrderResultFlavor = "CO"
+	PositionRiskOrderResultFlavorGTT     PositionRiskOrderResultFlavor = "GTT"
+	PositionRiskOrderResultFlavorREGULAR PositionRiskOrderResultFlavor = "REGULAR"
+)
+
+// Valid indicates whether the value is a known member of the PositionRiskOrderResultFlavor enum.
+func (e PositionRiskOrderResultFlavor) Valid() bool {
+	switch e {
+	case PositionRiskOrderResultFlavorBO:
+		return true
+	case PositionRiskOrderResultFlavorCO:
+		return true
+	case PositionRiskOrderResultFlavorGTT:
+		return true
+	case PositionRiskOrderResultFlavorREGULAR:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PositionRiskOrderResultLeg.
+const (
+	PositionRiskOrderResultLegSTOPLOSS PositionRiskOrderResultLeg = "STOPLOSS"
+	PositionRiskOrderResultLegTARGET   PositionRiskOrderResultLeg = "TARGET"
+)
+
+// Valid indicates whether the value is a known member of the PositionRiskOrderResultLeg enum.
+func (e PositionRiskOrderResultLeg) Valid() bool {
+	switch e {
+	case PositionRiskOrderResultLegSTOPLOSS:
+		return true
+	case PositionRiskOrderResultLegTARGET:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TradeTradeSide.
 const (
 	TradeTradeSideB TradeTradeSide = "B"
@@ -896,69 +956,336 @@ func (e ExitPositionJSONBodyTradeSide) Valid() bool {
 	}
 }
 
+// Defines values for SetPositionStoplossJSONBodyExchangeSegment.
+const (
+	SetPositionStoplossJSONBodyExchangeSegmentBSE      SetPositionStoplossJSONBodyExchangeSegment = "BSE"
+	SetPositionStoplossJSONBodyExchangeSegmentBSECDSFO SetPositionStoplossJSONBodyExchangeSegment = "BSECDSFO"
+	SetPositionStoplossJSONBodyExchangeSegmentBSEFO    SetPositionStoplossJSONBodyExchangeSegment = "BSEFO"
+	SetPositionStoplossJSONBodyExchangeSegmentMCXFO    SetPositionStoplossJSONBodyExchangeSegment = "MCXFO"
+	SetPositionStoplossJSONBodyExchangeSegmentNSE      SetPositionStoplossJSONBodyExchangeSegment = "NSE"
+	SetPositionStoplossJSONBodyExchangeSegmentNSECDSFO SetPositionStoplossJSONBodyExchangeSegment = "NSECDSFO"
+	SetPositionStoplossJSONBodyExchangeSegmentNSEFO    SetPositionStoplossJSONBodyExchangeSegment = "NSEFO"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionStoplossJSONBodyExchangeSegment enum.
+func (e SetPositionStoplossJSONBodyExchangeSegment) Valid() bool {
+	switch e {
+	case SetPositionStoplossJSONBodyExchangeSegmentBSE:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentBSECDSFO:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentBSEFO:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentMCXFO:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentNSE:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentNSECDSFO:
+		return true
+	case SetPositionStoplossJSONBodyExchangeSegmentNSEFO:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SetPositionStoplossJSONBodyFlavor.
+const (
+	SetPositionStoplossJSONBodyFlavorBO      SetPositionStoplossJSONBodyFlavor = "BO"
+	SetPositionStoplossJSONBodyFlavorCO      SetPositionStoplossJSONBodyFlavor = "CO"
+	SetPositionStoplossJSONBodyFlavorGTT     SetPositionStoplossJSONBodyFlavor = "GTT"
+	SetPositionStoplossJSONBodyFlavorREGULAR SetPositionStoplossJSONBodyFlavor = "REGULAR"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionStoplossJSONBodyFlavor enum.
+func (e SetPositionStoplossJSONBodyFlavor) Valid() bool {
+	switch e {
+	case SetPositionStoplossJSONBodyFlavorBO:
+		return true
+	case SetPositionStoplossJSONBodyFlavorCO:
+		return true
+	case SetPositionStoplossJSONBodyFlavorGTT:
+		return true
+	case SetPositionStoplossJSONBodyFlavorREGULAR:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SetPositionStoplossJSONBodyProductType.
+const (
+	SetPositionStoplossJSONBodyProductTypeDELIVERY SetPositionStoplossJSONBodyProductType = "DELIVERY"
+	SetPositionStoplossJSONBodyProductTypeINTRADAY SetPositionStoplossJSONBodyProductType = "INTRADAY"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionStoplossJSONBodyProductType enum.
+func (e SetPositionStoplossJSONBodyProductType) Valid() bool {
+	switch e {
+	case SetPositionStoplossJSONBodyProductTypeDELIVERY:
+		return true
+	case SetPositionStoplossJSONBodyProductTypeINTRADAY:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SetPositionTargetJSONBodyExchangeSegment.
+const (
+	SetPositionTargetJSONBodyExchangeSegmentBSE      SetPositionTargetJSONBodyExchangeSegment = "BSE"
+	SetPositionTargetJSONBodyExchangeSegmentBSECDSFO SetPositionTargetJSONBodyExchangeSegment = "BSECDSFO"
+	SetPositionTargetJSONBodyExchangeSegmentBSEFO    SetPositionTargetJSONBodyExchangeSegment = "BSEFO"
+	SetPositionTargetJSONBodyExchangeSegmentMCXFO    SetPositionTargetJSONBodyExchangeSegment = "MCXFO"
+	SetPositionTargetJSONBodyExchangeSegmentNSE      SetPositionTargetJSONBodyExchangeSegment = "NSE"
+	SetPositionTargetJSONBodyExchangeSegmentNSECDSFO SetPositionTargetJSONBodyExchangeSegment = "NSECDSFO"
+	SetPositionTargetJSONBodyExchangeSegmentNSEFO    SetPositionTargetJSONBodyExchangeSegment = "NSEFO"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionTargetJSONBodyExchangeSegment enum.
+func (e SetPositionTargetJSONBodyExchangeSegment) Valid() bool {
+	switch e {
+	case SetPositionTargetJSONBodyExchangeSegmentBSE:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentBSECDSFO:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentBSEFO:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentMCXFO:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentNSE:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentNSECDSFO:
+		return true
+	case SetPositionTargetJSONBodyExchangeSegmentNSEFO:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SetPositionTargetJSONBodyFlavor.
+const (
+	SetPositionTargetJSONBodyFlavorBO      SetPositionTargetJSONBodyFlavor = "BO"
+	SetPositionTargetJSONBodyFlavorCO      SetPositionTargetJSONBodyFlavor = "CO"
+	SetPositionTargetJSONBodyFlavorGTT     SetPositionTargetJSONBodyFlavor = "GTT"
+	SetPositionTargetJSONBodyFlavorREGULAR SetPositionTargetJSONBodyFlavor = "REGULAR"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionTargetJSONBodyFlavor enum.
+func (e SetPositionTargetJSONBodyFlavor) Valid() bool {
+	switch e {
+	case SetPositionTargetJSONBodyFlavorBO:
+		return true
+	case SetPositionTargetJSONBodyFlavorCO:
+		return true
+	case SetPositionTargetJSONBodyFlavorGTT:
+		return true
+	case SetPositionTargetJSONBodyFlavorREGULAR:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SetPositionTargetJSONBodyProductType.
+const (
+	SetPositionTargetJSONBodyProductTypeDELIVERY SetPositionTargetJSONBodyProductType = "DELIVERY"
+	SetPositionTargetJSONBodyProductTypeINTRADAY SetPositionTargetJSONBodyProductType = "INTRADAY"
+)
+
+// Valid indicates whether the value is a known member of the SetPositionTargetJSONBodyProductType enum.
+func (e SetPositionTargetJSONBodyProductType) Valid() bool {
+	switch e {
+	case SetPositionTargetJSONBodyProductTypeDELIVERY:
+		return true
+	case SetPositionTargetJSONBodyProductTypeINTRADAY:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for HistoricalJSONBodyExchangeSegment.
+const (
+	HistoricalJSONBodyExchangeSegmentBSE      HistoricalJSONBodyExchangeSegment = "BSE"
+	HistoricalJSONBodyExchangeSegmentBSECDSFO HistoricalJSONBodyExchangeSegment = "BSECDSFO"
+	HistoricalJSONBodyExchangeSegmentBSEFO    HistoricalJSONBodyExchangeSegment = "BSEFO"
+	HistoricalJSONBodyExchangeSegmentMCXFO    HistoricalJSONBodyExchangeSegment = "MCXFO"
+	HistoricalJSONBodyExchangeSegmentNSE      HistoricalJSONBodyExchangeSegment = "NSE"
+	HistoricalJSONBodyExchangeSegmentNSECDSFO HistoricalJSONBodyExchangeSegment = "NSECDSFO"
+	HistoricalJSONBodyExchangeSegmentNSEFO    HistoricalJSONBodyExchangeSegment = "NSEFO"
+)
+
+// Valid indicates whether the value is a known member of the HistoricalJSONBodyExchangeSegment enum.
+func (e HistoricalJSONBodyExchangeSegment) Valid() bool {
+	switch e {
+	case HistoricalJSONBodyExchangeSegmentBSE:
+		return true
+	case HistoricalJSONBodyExchangeSegmentBSECDSFO:
+		return true
+	case HistoricalJSONBodyExchangeSegmentBSEFO:
+		return true
+	case HistoricalJSONBodyExchangeSegmentMCXFO:
+		return true
+	case HistoricalJSONBodyExchangeSegmentNSE:
+		return true
+	case HistoricalJSONBodyExchangeSegmentNSECDSFO:
+		return true
+	case HistoricalJSONBodyExchangeSegmentNSEFO:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for HistoricalJSONBodyInterval.
 const (
-	N10m HistoricalJSONBodyInterval = "10m"
-	N15m HistoricalJSONBodyInterval = "15m"
-	N1D  HistoricalJSONBodyInterval = "1D"
-	N1M  HistoricalJSONBodyInterval = "1M"
-	N1W  HistoricalJSONBodyInterval = "1W"
-	N1Y  HistoricalJSONBodyInterval = "1Y"
-	N1h  HistoricalJSONBodyInterval = "1h"
-	N1m  HistoricalJSONBodyInterval = "1m"
-	N2h  HistoricalJSONBodyInterval = "2h"
-	N2m  HistoricalJSONBodyInterval = "2m"
-	N30m HistoricalJSONBodyInterval = "30m"
-	N3M  HistoricalJSONBodyInterval = "3M"
-	N3h  HistoricalJSONBodyInterval = "3h"
-	N3m  HistoricalJSONBodyInterval = "3m"
-	N45m HistoricalJSONBodyInterval = "45m"
-	N4h  HistoricalJSONBodyInterval = "4h"
-	N4m  HistoricalJSONBodyInterval = "4m"
-	N5m  HistoricalJSONBodyInterval = "5m"
-	N6M  HistoricalJSONBodyInterval = "6M"
+	HistoricalJSONBodyIntervalN10m HistoricalJSONBodyInterval = "10m"
+	HistoricalJSONBodyIntervalN15m HistoricalJSONBodyInterval = "15m"
+	HistoricalJSONBodyIntervalN1D  HistoricalJSONBodyInterval = "1D"
+	HistoricalJSONBodyIntervalN1M  HistoricalJSONBodyInterval = "1M"
+	HistoricalJSONBodyIntervalN1W  HistoricalJSONBodyInterval = "1W"
+	HistoricalJSONBodyIntervalN1Y  HistoricalJSONBodyInterval = "1Y"
+	HistoricalJSONBodyIntervalN1h  HistoricalJSONBodyInterval = "1h"
+	HistoricalJSONBodyIntervalN1m  HistoricalJSONBodyInterval = "1m"
+	HistoricalJSONBodyIntervalN2h  HistoricalJSONBodyInterval = "2h"
+	HistoricalJSONBodyIntervalN2m  HistoricalJSONBodyInterval = "2m"
+	HistoricalJSONBodyIntervalN30m HistoricalJSONBodyInterval = "30m"
+	HistoricalJSONBodyIntervalN3M  HistoricalJSONBodyInterval = "3M"
+	HistoricalJSONBodyIntervalN3h  HistoricalJSONBodyInterval = "3h"
+	HistoricalJSONBodyIntervalN3m  HistoricalJSONBodyInterval = "3m"
+	HistoricalJSONBodyIntervalN45m HistoricalJSONBodyInterval = "45m"
+	HistoricalJSONBodyIntervalN4h  HistoricalJSONBodyInterval = "4h"
+	HistoricalJSONBodyIntervalN4m  HistoricalJSONBodyInterval = "4m"
+	HistoricalJSONBodyIntervalN5m  HistoricalJSONBodyInterval = "5m"
+	HistoricalJSONBodyIntervalN6M  HistoricalJSONBodyInterval = "6M"
 )
 
 // Valid indicates whether the value is a known member of the HistoricalJSONBodyInterval enum.
 func (e HistoricalJSONBodyInterval) Valid() bool {
 	switch e {
-	case N10m:
+	case HistoricalJSONBodyIntervalN10m:
 		return true
-	case N15m:
+	case HistoricalJSONBodyIntervalN15m:
 		return true
-	case N1D:
+	case HistoricalJSONBodyIntervalN1D:
 		return true
-	case N1M:
+	case HistoricalJSONBodyIntervalN1M:
 		return true
-	case N1W:
+	case HistoricalJSONBodyIntervalN1W:
 		return true
-	case N1Y:
+	case HistoricalJSONBodyIntervalN1Y:
 		return true
-	case N1h:
+	case HistoricalJSONBodyIntervalN1h:
 		return true
-	case N1m:
+	case HistoricalJSONBodyIntervalN1m:
 		return true
-	case N2h:
+	case HistoricalJSONBodyIntervalN2h:
 		return true
-	case N2m:
+	case HistoricalJSONBodyIntervalN2m:
 		return true
-	case N30m:
+	case HistoricalJSONBodyIntervalN30m:
 		return true
-	case N3M:
+	case HistoricalJSONBodyIntervalN3M:
 		return true
-	case N3h:
+	case HistoricalJSONBodyIntervalN3h:
 		return true
-	case N3m:
+	case HistoricalJSONBodyIntervalN3m:
 		return true
-	case N45m:
+	case HistoricalJSONBodyIntervalN45m:
 		return true
-	case N4h:
+	case HistoricalJSONBodyIntervalN4h:
 		return true
-	case N4m:
+	case HistoricalJSONBodyIntervalN4m:
 		return true
-	case N5m:
+	case HistoricalJSONBodyIntervalN5m:
 		return true
-	case N6M:
+	case HistoricalJSONBodyIntervalN6M:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for IntradayJSONBodyExchangeSegment.
+const (
+	IntradayJSONBodyExchangeSegmentBSE      IntradayJSONBodyExchangeSegment = "BSE"
+	IntradayJSONBodyExchangeSegmentBSECDSFO IntradayJSONBodyExchangeSegment = "BSECDSFO"
+	IntradayJSONBodyExchangeSegmentBSEFO    IntradayJSONBodyExchangeSegment = "BSEFO"
+	IntradayJSONBodyExchangeSegmentMCXFO    IntradayJSONBodyExchangeSegment = "MCXFO"
+	IntradayJSONBodyExchangeSegmentNSE      IntradayJSONBodyExchangeSegment = "NSE"
+	IntradayJSONBodyExchangeSegmentNSECDSFO IntradayJSONBodyExchangeSegment = "NSECDSFO"
+	IntradayJSONBodyExchangeSegmentNSEFO    IntradayJSONBodyExchangeSegment = "NSEFO"
+)
+
+// Valid indicates whether the value is a known member of the IntradayJSONBodyExchangeSegment enum.
+func (e IntradayJSONBodyExchangeSegment) Valid() bool {
+	switch e {
+	case IntradayJSONBodyExchangeSegmentBSE:
+		return true
+	case IntradayJSONBodyExchangeSegmentBSECDSFO:
+		return true
+	case IntradayJSONBodyExchangeSegmentBSEFO:
+		return true
+	case IntradayJSONBodyExchangeSegmentMCXFO:
+		return true
+	case IntradayJSONBodyExchangeSegmentNSE:
+		return true
+	case IntradayJSONBodyExchangeSegmentNSECDSFO:
+		return true
+	case IntradayJSONBodyExchangeSegmentNSEFO:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for IntradayJSONBodyInterval.
+const (
+	IntradayJSONBodyIntervalN10m IntradayJSONBodyInterval = "10m"
+	IntradayJSONBodyIntervalN15m IntradayJSONBodyInterval = "15m"
+	IntradayJSONBodyIntervalN1h  IntradayJSONBodyInterval = "1h"
+	IntradayJSONBodyIntervalN1m  IntradayJSONBodyInterval = "1m"
+	IntradayJSONBodyIntervalN2h  IntradayJSONBodyInterval = "2h"
+	IntradayJSONBodyIntervalN2m  IntradayJSONBodyInterval = "2m"
+	IntradayJSONBodyIntervalN30m IntradayJSONBodyInterval = "30m"
+	IntradayJSONBodyIntervalN3h  IntradayJSONBodyInterval = "3h"
+	IntradayJSONBodyIntervalN3m  IntradayJSONBodyInterval = "3m"
+	IntradayJSONBodyIntervalN45m IntradayJSONBodyInterval = "45m"
+	IntradayJSONBodyIntervalN4h  IntradayJSONBodyInterval = "4h"
+	IntradayJSONBodyIntervalN4m  IntradayJSONBodyInterval = "4m"
+	IntradayJSONBodyIntervalN5m  IntradayJSONBodyInterval = "5m"
+)
+
+// Valid indicates whether the value is a known member of the IntradayJSONBodyInterval enum.
+func (e IntradayJSONBodyInterval) Valid() bool {
+	switch e {
+	case IntradayJSONBodyIntervalN10m:
+		return true
+	case IntradayJSONBodyIntervalN15m:
+		return true
+	case IntradayJSONBodyIntervalN1h:
+		return true
+	case IntradayJSONBodyIntervalN1m:
+		return true
+	case IntradayJSONBodyIntervalN2h:
+		return true
+	case IntradayJSONBodyIntervalN2m:
+		return true
+	case IntradayJSONBodyIntervalN30m:
+		return true
+	case IntradayJSONBodyIntervalN3h:
+		return true
+	case IntradayJSONBodyIntervalN3m:
+		return true
+	case IntradayJSONBodyIntervalN45m:
+		return true
+	case IntradayJSONBodyIntervalN4h:
+		return true
+	case IntradayJSONBodyIntervalN4m:
+		return true
+	case IntradayJSONBodyIntervalN5m:
 		return true
 	default:
 		return false
@@ -1424,6 +1751,39 @@ type PositionExitResult struct {
 // PositionExitResultFlavor defines model for PositionExitResult.Flavor.
 type PositionExitResultFlavor string
 
+// PositionRiskOrderResult One stop-loss or target exit order, placed new or amended in place. `quantity` is what the order actually covers after clamping to the live position.
+type PositionRiskOrderResult struct {
+	// Action Whether a new exit order was placed or an existing one amended.
+	Action          PositionRiskOrderResultAction `json:"action"`
+	ExchangeSegment string                        `json:"exchangeSegment"`
+	Flavor          PositionRiskOrderResultFlavor `json:"flavor"`
+	IsSubmitted     bool                          `json:"isSubmitted"`
+
+	// Leg Which exit leg was set.
+	Leg PositionRiskOrderResultLeg `json:"leg"`
+
+	// LimitPrice Limit price a stop-loss will be sent at once triggered: one price tick past the trigger (below for a sell exit, above for a buy). Same as price for a target.
+	LimitPrice *float32 `json:"limitPrice,omitempty"`
+
+	// OrderId Broker order id of the exit order. Empty for BO/CO, whose modify endpoint returns no id.
+	OrderId string `json:"orderId"`
+
+	// Price Trigger price for a stop-loss, limit price for a target.
+	Price         float32 `json:"price"`
+	Quantity      int     `json:"quantity"`
+	ScripCode     string  `json:"scripCode"`
+	TradingSymbol string  `json:"tradingSymbol"`
+}
+
+// PositionRiskOrderResultAction Whether a new exit order was placed or an existing one amended.
+type PositionRiskOrderResultAction string
+
+// PositionRiskOrderResultFlavor defines model for PositionRiskOrderResult.Flavor.
+type PositionRiskOrderResultFlavor string
+
+// PositionRiskOrderResultLeg Which exit leg was set.
+type PositionRiskOrderResultLeg string
+
 // Positions defines model for Positions.
 type Positions struct {
 	Positions []Position `json:"positions"`
@@ -1452,7 +1812,6 @@ type ScripInfo struct {
 
 	// Isin Equity only.
 	Isin      *string `json:"isin,omitempty"`
-	Logo      *string `json:"logo,omitempty"`
 	MarketLot int     `json:"marketLot"`
 	PriceTick float32 `json:"priceTick"`
 
@@ -1851,8 +2210,77 @@ type ExitPositionJSONBodyProductType string
 // ExitPositionJSONBodyTradeSide defines parameters for ExitPosition.
 type ExitPositionJSONBodyTradeSide string
 
+// SetPositionStoplossJSONBody defines parameters for SetPositionStoploss.
+type SetPositionStoplossJSONBody struct {
+	// ExchangeSegment Exchange segment. Required when tradingSymbol is not sent.
+	ExchangeSegment *SetPositionStoplossJSONBodyExchangeSegment `json:"exchangeSegment,omitempty"`
+
+	// Flavor Flavor the exit order is placed under. BO/CO amend the position's own broker-owned leg and must match the flavor GET /portfolio/positions reports. REGULAR places a DAY stop that dies at EOD; GTT places one that carries forward; a GTT exit is still placed against a REGULAR position.
+	Flavor SetPositionStoplossJSONBodyFlavor `json:"flavor"`
+
+	// OrderId Existing exit order to modify. Only needed to disambiguate when more than one live exit order matches the position.
+	OrderId *string `json:"orderId,omitempty"`
+
+	// ProductType Product type of the open position.
+	ProductType SetPositionStoplossJSONBodyProductType `json:"productType"`
+
+	// ScripCode Broker scrip code (token). Required when tradingSymbol is not sent.
+	ScripCode *string `json:"scripCode,omitempty"`
+
+	// TradingSymbol Trading symbol from the instrument list. Required unless exchangeSegment + scripCode are sent.
+	TradingSymbol *string `json:"tradingSymbol,omitempty"`
+
+	// TriggerPrice Stop-loss trigger price. Must be below LTP for a long position, above it for a short.
+	TriggerPrice float32 `json:"triggerPrice"`
+}
+
+// SetPositionStoplossJSONBodyExchangeSegment defines parameters for SetPositionStoploss.
+type SetPositionStoplossJSONBodyExchangeSegment string
+
+// SetPositionStoplossJSONBodyFlavor defines parameters for SetPositionStoploss.
+type SetPositionStoplossJSONBodyFlavor string
+
+// SetPositionStoplossJSONBodyProductType defines parameters for SetPositionStoploss.
+type SetPositionStoplossJSONBodyProductType string
+
+// SetPositionTargetJSONBody defines parameters for SetPositionTarget.
+type SetPositionTargetJSONBody struct {
+	// ExchangeSegment Exchange segment. Required when tradingSymbol is not sent.
+	ExchangeSegment *SetPositionTargetJSONBodyExchangeSegment `json:"exchangeSegment,omitempty"`
+
+	// Flavor Flavor the exit order is placed under. BO/CO amend the position's own broker-owned leg and must match the flavor GET /portfolio/positions reports. REGULAR places a DAY stop that dies at EOD; GTT places one that carries forward; a GTT exit is still placed against a REGULAR position.
+	Flavor SetPositionTargetJSONBodyFlavor `json:"flavor"`
+
+	// OrderId Existing exit order to modify. Only needed to disambiguate when more than one live exit order matches the position.
+	OrderId *string `json:"orderId,omitempty"`
+
+	// ProductType Product type of the open position.
+	ProductType SetPositionTargetJSONBodyProductType `json:"productType"`
+
+	// ScripCode Broker scrip code (token). Required when tradingSymbol is not sent.
+	ScripCode *string `json:"scripCode,omitempty"`
+
+	// TargetPrice Target limit price. Must be above LTP for a long position, below it for a short.
+	TargetPrice float32 `json:"targetPrice"`
+
+	// TradingSymbol Trading symbol from the instrument list. Required unless exchangeSegment + scripCode are sent.
+	TradingSymbol *string `json:"tradingSymbol,omitempty"`
+}
+
+// SetPositionTargetJSONBodyExchangeSegment defines parameters for SetPositionTarget.
+type SetPositionTargetJSONBodyExchangeSegment string
+
+// SetPositionTargetJSONBodyFlavor defines parameters for SetPositionTarget.
+type SetPositionTargetJSONBodyFlavor string
+
+// SetPositionTargetJSONBodyProductType defines parameters for SetPositionTarget.
+type SetPositionTargetJSONBodyProductType string
+
 // HistoricalJSONBody defines parameters for Historical.
 type HistoricalJSONBody struct {
+	// ExchangeSegment Exchange segment. Required when tradingSymbol is not sent.
+	ExchangeSegment *HistoricalJSONBodyExchangeSegment `json:"exchangeSegment,omitempty"`
+
 	// Fields Accepted but not used: every series is always returned.
 	Fields *[]string `json:"fields,omitempty"`
 
@@ -1862,15 +2290,45 @@ type HistoricalJSONBody struct {
 	// Interval Candle length: m = minutes, h = hours, D/W/M = day, week, month. 3M, 6M and 1Y are passed to the broker without the translation the others get and may come back empty; build them from 1M candles instead.
 	Interval HistoricalJSONBodyInterval `json:"interval"`
 
+	// ScripCode Broker scrip code (token). Required when tradingSymbol is not sent.
+	ScripCode *string `json:"scripCode,omitempty"`
+
 	// ToTime End of the range, Unix epoch seconds. Candles that open after it are left out.
 	ToTime int `json:"toTime"`
 
-	// TradingSymbol Trading symbol from the instrument list.
-	TradingSymbol string `json:"tradingSymbol"`
+	// TradingSymbol Trading symbol from the instrument list. Required unless exchangeSegment + scripCode are sent.
+	TradingSymbol *string `json:"tradingSymbol,omitempty"`
 }
+
+// HistoricalJSONBodyExchangeSegment defines parameters for Historical.
+type HistoricalJSONBodyExchangeSegment string
 
 // HistoricalJSONBodyInterval defines parameters for Historical.
 type HistoricalJSONBodyInterval string
+
+// IntradayJSONBody defines parameters for Intraday.
+type IntradayJSONBody struct {
+	// ExchangeSegment Exchange segment. Required when tradingSymbol is not sent.
+	ExchangeSegment *IntradayJSONBodyExchangeSegment `json:"exchangeSegment,omitempty"`
+
+	// Fields Accepted but not used: every series is always returned.
+	Fields *[]string `json:"fields,omitempty"`
+
+	// Interval Candle length: m = minutes, h = hours.
+	Interval IntradayJSONBodyInterval `json:"interval"`
+
+	// ScripCode Broker scrip code (token). Required when tradingSymbol is not sent.
+	ScripCode *string `json:"scripCode,omitempty"`
+
+	// TradingSymbol Trading symbol from the instrument list. Required unless exchangeSegment + scripCode are sent.
+	TradingSymbol *string `json:"tradingSymbol,omitempty"`
+}
+
+// IntradayJSONBodyExchangeSegment defines parameters for Intraday.
+type IntradayJSONBodyExchangeSegment string
+
+// IntradayJSONBodyInterval defines parameters for Intraday.
+type IntradayJSONBodyInterval string
 
 // OhlcJSONBody defines parameters for Ohlc.
 type OhlcJSONBody struct {
@@ -1923,8 +2381,17 @@ type ConvertPositionJSONRequestBody ConvertPositionJSONBody
 // ExitPositionJSONRequestBody defines body for ExitPosition for application/json ContentType.
 type ExitPositionJSONRequestBody ExitPositionJSONBody
 
+// SetPositionStoplossJSONRequestBody defines body for SetPositionStoploss for application/json ContentType.
+type SetPositionStoplossJSONRequestBody SetPositionStoplossJSONBody
+
+// SetPositionTargetJSONRequestBody defines body for SetPositionTarget for application/json ContentType.
+type SetPositionTargetJSONRequestBody SetPositionTargetJSONBody
+
 // HistoricalJSONRequestBody defines body for Historical for application/json ContentType.
 type HistoricalJSONRequestBody HistoricalJSONBody
+
+// IntradayJSONRequestBody defines body for Intraday for application/json ContentType.
+type IntradayJSONRequestBody IntradayJSONBody
 
 // OhlcJSONRequestBody defines body for Ohlc for application/json ContentType.
 type OhlcJSONRequestBody OhlcJSONBody

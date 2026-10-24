@@ -13,6 +13,7 @@ type (
 	QuotesRequest      = generated.QuotesJSONRequestBody
 	OhlcRequest        = generated.OhlcJSONRequestBody
 	HistoricalRequest  = generated.HistoricalJSONRequestBody
+	IntradayRequest    = generated.IntradayJSONRequestBody
 	OptionChainRequest = generated.OptionChainJSONRequestBody
 )
 
@@ -74,10 +75,20 @@ func (r *ScripsResource) FutureData(ctx context.Context, symbol string) ([]gener
 }
 
 // Historical returns candles, columnar: every array has the same length and
-// index i across them describes one candle.
+// index i across them describes one candle. Name the instrument by
+// TradingSymbol, or by ExchangeSegment and ScripCode.
 func (r *ScripsResource) Historical(ctx context.Context, body HistoricalRequest) (generated.HistoricalCandles, error) {
 	return doRequest[generated.HistoricalCandles](ctx, r.config, requestOptions{
 		method: "POST", path: "/scrips/historical", auth: authBearer, body: body,
+	})
+}
+
+// Intraday returns the most recent trading session's candles, columnar, in
+// the same shape as Historical. It also works over a weekend or holiday.
+// Name the instrument by TradingSymbol, or by ExchangeSegment and ScripCode.
+func (r *ScripsResource) Intraday(ctx context.Context, body IntradayRequest) (generated.HistoricalCandles, error) {
+	return doRequest[generated.HistoricalCandles](ctx, r.config, requestOptions{
+		method: "POST", path: "/scrips/intraday", auth: authBearer, body: body,
 	})
 }
 

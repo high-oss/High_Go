@@ -12,6 +12,8 @@ import (
 type (
 	ConvertPositionRequest = generated.ConvertPositionJSONRequestBody
 	ExitPositionRequest    = generated.ExitPositionJSONRequestBody
+	SetStoplossRequest     = generated.SetPositionStoplossJSONRequestBody
+	SetTargetRequest       = generated.SetPositionTargetJSONRequestBody
 )
 
 // PortfolioResource covers positions, holdings and funds.
@@ -38,6 +40,23 @@ func (r *PortfolioResource) Funds(ctx context.Context) (generated.Funds, error) 
 func (r *PortfolioResource) ConvertPosition(ctx context.Context, body ConvertPositionRequest) (generated.PositionConvertResult, error) {
 	return doRequest[generated.PositionConvertResult](ctx, r.config, requestOptions{
 		method: "PATCH", path: "/portfolio/positions/convert", auth: authBearer, body: body,
+	})
+}
+
+// SetStoploss places a stop-loss exit order for an open position, or amends
+// the existing one. The quantity comes from the live position. Never retried.
+func (r *PortfolioResource) SetStoploss(ctx context.Context, body SetStoplossRequest) (generated.PositionRiskOrderResult, error) {
+	return doRequest[generated.PositionRiskOrderResult](ctx, r.config, requestOptions{
+		method: "PATCH", path: "/portfolio/positions/stoploss", auth: authBearer, body: body,
+	})
+}
+
+// SetTarget places a target (limit) exit order for an open position, or
+// amends the existing one. The quantity comes from the live position. Never
+// retried.
+func (r *PortfolioResource) SetTarget(ctx context.Context, body SetTargetRequest) (generated.PositionRiskOrderResult, error) {
+	return doRequest[generated.PositionRiskOrderResult](ctx, r.config, requestOptions{
+		method: "PATCH", path: "/portfolio/positions/target", auth: authBearer, body: body,
 	})
 }
 

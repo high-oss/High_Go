@@ -6,6 +6,7 @@ package highopenapi_test
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 
 	highopenapi "github.com/high-oss/High_Go"
@@ -167,6 +168,93 @@ func TestPortfolioNeverRetriesASquareOffEvenOn503(t *testing.T) {
 	defer ts.Close()
 
 	_, err := clientFor(t, ts, nil).Portfolio.ExitAllPositions(context.Background())
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+	if ts.Count() != 1 {
+		t.Fatalf("expected exactly 1 request, got %d", ts.Count())
+	}
+}
+
+func TestPortfolioSetStoplossPatchesStoplossEndpointWithSymbol(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
+			"tradingSymbol": "RELIANCE-EQ", "exchangeSegment": "NSE", "scripCode": "2885",
+			"leg": "STOPLOSS", "action": "PLACED", "flavor": "REGULAR", "orderId": "250512000012345",
+			"quantity": 50, "price": 2400, "limitPrice": 2399.95, "isSubmitted": true,
+		}))
+	})
+	defer ts.Close()
+
+	result, err := clientFor(t, ts, nil).Portfolio.SetStoploss(context.Background(), highopenapi.SetStoplossRequest{
+		TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+		ProductType:   generated.SetPositionStoplossJSONBodyProductTypeINTRADAY,
+		Flavor:        generated.SetPositionStoplossJSONBodyFlavorREGULAR,
+		TriggerPrice:  2400,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Leg != generated.PositionRiskOrderResultLegSTOPLOSS || result.Quantity != 50 || !result.IsSubmitted {
+		t.Fatalf("result = %+v", result)
+	}
+	req := ts.Req(0)
+	if req.Method != "PATCH" || req.URL != "/v1/portfolio/positions/stoploss" {
+		t.Fatalf("method/URL = %s %s", req.Method, req.URL)
+	}
+	if !strings.Contains(req.Body, `"tradingSymbol":"RELIANCE-EQ"`) || !strings.Contains(req.Body, `"triggerPrice":2400`) {
+		t.Errorf("body = %s", req.Body)
+	}
+}
+
+func TestPortfolioSetTargetPatchesTargetEndpointWithSegmentAndScripCode(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
+			"tradingSymbol": "RELIANCE-EQ", "exchangeSegment": "NSE", "scripCode": "2885",
+			"leg": "TARGET", "action": "MODIFIED", "flavor": "GTT", "orderId": "250512000012345",
+			"quantity": 50, "price": 2600, "isSubmitted": true,
+		}))
+	})
+	defer ts.Close()
+
+	result, err := clientFor(t, ts, nil).Portfolio.SetTarget(context.Background(), highopenapi.SetTargetRequest{
+		ExchangeSegment: highopenapi.Ptr(generated.SetPositionTargetJSONBodyExchangeSegmentNSE),
+		ScripCode:       highopenapi.Ptr("2885"),
+		ProductType:     generated.SetPositionTargetJSONBodyProductTypeDELIVERY,
+		Flavor:          generated.SetPositionTargetJSONBodyFlavorGTT,
+		TargetPrice:     2600,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Leg != generated.PositionRiskOrderResultLegTARGET || result.Action != generated.MODIFIED {
+		t.Fatalf("result = %+v", result)
+	}
+	req := ts.Req(0)
+	if req.Method != "PATCH" || req.URL != "/v1/portfolio/positions/target" {
+		t.Fatalf("method/URL = %s %s", req.Method, req.URL)
+	}
+	if strings.Contains(req.Body, "tradingSymbol") {
+		t.Errorf("body should not carry tradingSymbol: %s", req.Body)
+	}
+	if !strings.Contains(req.Body, `"targetPrice":2600`) || !strings.Contains(req.Body, `"exchangeSegment":"NSE"`) {
+		t.Errorf("body = %s", req.Body)
+	}
+}
+
+// A stop-loss is a PATCH, so it is never retried even on a 503.
+func TestPortfolioSetStoplossIsNeverRetried(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 503, map[string]any{"code": "SERVICE_UNAVAILABLE"})
+	})
+	defer ts.Close()
+
+	_, err := clientFor(t, ts, nil).Portfolio.SetStoploss(context.Background(), highopenapi.SetStoplossRequest{
+		TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+		ProductType:   generated.SetPositionStoplossJSONBodyProductTypeINTRADAY,
+		Flavor:        generated.SetPositionStoplossJSONBodyFlavorREGULAR,
+		TriggerPrice:  2400,
+	})
 	if err == nil {
 		t.Fatal("expected an error")
 	}

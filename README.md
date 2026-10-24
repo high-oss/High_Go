@@ -192,14 +192,14 @@ quotes, err := high.Scrips.Quotes(ctx, highopenapi.QuotesRequest{
 
 ## Resources
 
-24 operations across five namespaces.
+27 operations across five namespaces.
 
 | Namespace | Methods |
 |---|---|
 | `Auth` | `GenerateAccessToken` |
 | `Orders` | `Place` · `Modify` · `Get` · `Cancel` · `List` · `Trades` · `TradesFor` · `Charges` · `Margin` |
-| `Portfolio` | `Positions` · `Holdings` · `Funds` · `ConvertPosition` · `ExitAllPositions` · `ExitPosition` |
-| `Scrips` | `Quotes` · `Ohlc` · `Depth` · `Expiries` · `FutureData` · `Historical` · `OptionChain` |
+| `Portfolio` | `Positions` · `Holdings` · `Funds` · `ConvertPosition` · `SetStoploss` · `SetTarget` · `ExitAllPositions` · `ExitPosition` |
+| `Scrips` | `Quotes` · `Ohlc` · `Depth` · `Expiries` · `FutureData` · `Historical` · `Intraday` · `OptionChain` |
 | `Market` | `Status` |
 
 Each method returns the response's `data` — the `{requestId, data}` envelope
@@ -213,9 +213,10 @@ quotes, _ := high.Scrips.Quotes(ctx, highopenapi.QuotesRequest{Symbols: highopen
 quotes["RELIANCE-EQ"].LTP
 
 // Historical returns COLUMNAR arrays — index i across them is one candle —
-// and takes FromTime/ToTime as epoch seconds (int).
+// and takes FromTime/ToTime as epoch seconds (int). The instrument is named by
+// TradingSymbol, or by ExchangeSegment + ScripCode; Intraday takes the same two.
 candles, _ := high.Scrips.Historical(ctx, highopenapi.HistoricalRequest{
-	TradingSymbol: "RELIANCE-EQ", Interval: "1D",
+	TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"), Interval: "1D",
 	FromTime: 1789929000, ToTime: 1790330400,
 })
 candles.Close[0] // not candles[0].Close

@@ -6,9 +6,11 @@ package highopenapi_test
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 
 	highopenapi "github.com/high-oss/High_Go"
+	"github.com/high-oss/High_Go/generated"
 )
 
 func TestScripsQuotesReturnsAMapKeyedByTradingSymbol(t *testing.T) {
@@ -122,7 +124,7 @@ func TestScripsHistoricalReturnsParallelColumnsOfEqualLength(t *testing.T) {
 	defer ts.Close()
 
 	candles, err := clientFor(t, ts, nil).Scrips.Historical(context.Background(), highopenapi.HistoricalRequest{
-		TradingSymbol: "RELIANCE-EQ", Interval: "1D", FromTime: 1789929000, ToTime: 1790330400,
+		TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"), Interval: "1D", FromTime: 1789929000, ToTime: 1790330400,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -132,6 +134,89 @@ func TestScripsHistoricalReturnsParallelColumnsOfEqualLength(t *testing.T) {
 	}
 	if len(candles.Close) != len(candles.Timestamp) {
 		t.Fatalf("Close length %d != Timestamp length %d", len(candles.Close), len(candles.Timestamp))
+	}
+}
+
+// historical also takes the instrument as exchangeSegment + scripCode, with no
+// tradingSymbol at all.
+func TestScripsHistoricalAcceptsSegmentAndScripCodeInPlaceOfSymbol(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
+			"tradingSymbol": "NSE@2885", "interval": "1D",
+			"timestamp": []int{1789929000}, "open": []float64{1398.5}, "high": []float64{1406.2},
+			"low": []float64{1394.1}, "close": []float64{1401.7}, "volume": []int{7215430},
+		}))
+	})
+	defer ts.Close()
+
+	candles, err := clientFor(t, ts, nil).Scrips.Historical(context.Background(), highopenapi.HistoricalRequest{
+		ExchangeSegment: highopenapi.Ptr(generated.HistoricalJSONBodyExchangeSegmentNSE),
+		ScripCode:       highopenapi.Ptr("2885"),
+		Interval:        "1D", FromTime: 1789929000, ToTime: 1790330400,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(candles.Close) != 1 {
+		t.Fatalf("Close = %v", candles.Close)
+	}
+	req := ts.Req(0)
+	if req.Method != "POST" || req.URL != "/v1/scrips/historical" {
+		t.Fatalf("method/URL = %s %s", req.Method, req.URL)
+	}
+	if !strings.Contains(req.Body, `"exchangeSegment":"NSE"`) || !strings.Contains(req.Body, `"scripCode":"2885"`) {
+		t.Errorf("body = %s", req.Body)
+	}
+	if strings.Contains(req.Body, "tradingSymbol") {
+		t.Errorf("body should not carry tradingSymbol: %s", req.Body)
+	}
+}
+
+func TestScripsIntradayPostsToTheIntradayEndpointWithTheSymbol(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 200, highopenapi.Envelope("r", map[string]any{
+			"tradingSymbol": "NSE@2885", "interval": "5m",
+			"timestamp": []int{1790308500, 1790308800}, "open": []float64{1408.2, 1409.4}, "high": []float64{1410.3, 1411.2},
+			"low": []float64{1407.6, 1408.9}, "close": []float64{1409.4, 1410.1}, "volume": []int{184320, 152110},
+		}))
+	})
+	defer ts.Close()
+
+	candles, err := clientFor(t, ts, nil).Scrips.Intraday(context.Background(), highopenapi.IntradayRequest{
+		TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+		Interval:      "5m",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(candles.Timestamp) != 2 || len(candles.Close) != len(candles.Timestamp) {
+		t.Fatalf("columns are not parallel: %+v", candles)
+	}
+	req := ts.Req(0)
+	if req.Method != "POST" || req.URL != "/v1/scrips/intraday" {
+		t.Fatalf("method/URL = %s %s", req.Method, req.URL)
+	}
+	if !strings.Contains(req.Body, `"tradingSymbol":"RELIANCE-EQ"`) || !strings.Contains(req.Body, `"interval":"5m"`) {
+		t.Errorf("body = %s", req.Body)
+	}
+}
+
+// intraday is a POST, so it is never retried even on a 503.
+func TestScripsIntradayIsNeverRetried(t *testing.T) {
+	ts := highopenapi.StartTestServer(func(w http.ResponseWriter, r *http.Request, _ int) {
+		highopenapi.WriteJSON(w, 503, map[string]any{"code": "SERVICE_UNAVAILABLE"})
+	})
+	defer ts.Close()
+
+	_, err := clientFor(t, ts, nil).Scrips.Intraday(context.Background(), highopenapi.IntradayRequest{
+		TradingSymbol: highopenapi.Ptr("RELIANCE-EQ"),
+		Interval:      "5m",
+	})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+	if ts.Count() != 1 {
+		t.Fatalf("expected exactly 1 request, got %d", ts.Count())
 	}
 }
 
