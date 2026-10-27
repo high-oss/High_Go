@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## Unreleased
+
+### Added
+
+- `Profile.Get` (`GET /profile`) returns the account holder's identity, demat and
+  bank details as `generated.Profile`. PAN, Aadhaar and bank account numbers are
+  masked to their last four characters.
+
 ## 0.1.0 — 2026-10-24
 
 Types regenerated from `High/sdk/spec` at commit `c1f37de4ec27245288ef9c9f83699c51f29b3b50`.

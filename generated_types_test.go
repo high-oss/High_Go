@@ -10,7 +10,7 @@ import (
 	"github.com/high-oss/High_Go/generated"
 )
 
-// The pinned spec has 31 operations (contract §1).
+// The pinned spec has 32 operations (contract §1).
 func TestGeneratedTypesCoverEveryOperation(t *testing.T) {
 	doc := highopenapi.LoadPinnedSpec(t)
 	methods := map[string]bool{"get": true, "post": true, "put": true, "delete": true, "patch": true}
@@ -22,8 +22,8 @@ func TestGeneratedTypesCoverEveryOperation(t *testing.T) {
 			}
 		}
 	}
-	if count != 31 {
-		t.Fatalf("expected 31 operations in the pinned spec, got %d", count)
+	if count != 32 {
+		t.Fatalf("expected 32 operations in the pinned spec, got %d", count)
 	}
 }
 

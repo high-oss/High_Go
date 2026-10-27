@@ -1796,6 +1796,40 @@ type Positions struct {
 	TotalStocks int         `json:"totalStocks"`
 }
 
+// Profile The account holder's profile: identity, demat and bank details. PAN, Aadhaar and bank account numbers are masked to their last four characters.
+type Profile struct {
+	// Aadhaar Masked to the last four characters.
+	Aadhaar string `json:"aadhaar"`
+	Address struct {
+		Address string `json:"address"`
+		City    string `json:"city"`
+		PinCode string `json:"pinCode"`
+		State   string `json:"state"`
+	} `json:"address"`
+	BankAccounts []struct {
+		// AccountNumber Masked to the last four characters.
+		AccountNumber string `json:"accountNumber"`
+		BankName      string `json:"bankName"`
+		Branch        string `json:"branch"`
+		IfscCode      string `json:"ifscCode"`
+		IsPrimary     bool   `json:"isPrimary"`
+	} `json:"bankAccounts"`
+	BoCode        string `json:"boCode"`
+	ClientId      string `json:"clientId"`
+	Depository    string `json:"depository"`
+	DpCode        string `json:"dpCode"`
+	Email         string `json:"email"`
+	IsMTFEnabled  bool   `json:"isMTFEnabled"`
+	IsNRI         bool   `json:"isNRI"`
+	IsPOAApproved bool   `json:"isPOAApproved"`
+	Mobile        string `json:"mobile"`
+	Name          string `json:"name"`
+
+	// Pan Masked to the last four characters.
+	Pan             string   `json:"pan"`
+	SegmentsAllowed []string `json:"segmentsAllowed"`
+}
+
 // QuoteMap Quotes keyed by trading symbol. Derivative entries carry open-interest fields; cash entries do not. OHLC requests add an `ohlcv` block to each entry.
 type QuoteMap map[string]Touchline
 

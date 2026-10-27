@@ -192,13 +192,14 @@ quotes, err := high.Scrips.Quotes(ctx, highopenapi.QuotesRequest{
 
 ## Resources
 
-27 operations across five namespaces.
+28 operations across six namespaces.
 
 | Namespace | Methods |
 |---|---|
 | `Auth` | `GenerateAccessToken` |
 | `Orders` | `Place` · `Modify` · `Get` · `Cancel` · `List` · `Trades` · `TradesFor` · `Charges` · `Margin` |
 | `Portfolio` | `Positions` · `Holdings` · `Funds` · `ConvertPosition` · `SetStoploss` · `SetTarget` · `ExitAllPositions` · `ExitPosition` |
+| `Profile` | `Get` |
 | `Scrips` | `Quotes` · `Ohlc` · `Depth` · `Expiries` · `FutureData` · `Historical` · `Intraday` · `OptionChain` |
 | `Market` | `Status` |
 

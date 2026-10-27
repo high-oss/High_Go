@@ -20,6 +20,7 @@ type Client struct {
 	Market      *MarketResource
 	Orders      *OrdersResource
 	Portfolio   *PortfolioResource
+	Profile     *ProfileResource
 	Scrips      *ScripsResource
 }
 
@@ -41,6 +42,7 @@ func New(opts Options) (*Client, error) {
 		Market:      &MarketResource{config: config},
 		Orders:      &OrdersResource{config: config},
 		Portfolio:   &PortfolioResource{config: config},
+		Profile:     &ProfileResource{config: config},
 		Scrips:      &ScripsResource{config: config},
 	}, nil
 }

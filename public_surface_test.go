@@ -20,6 +20,7 @@ var expectedSurface = map[string][]string{
 	"Auth":      {"GenerateAccessToken"},
 	"Orders":    {"Place", "Modify", "Get", "Cancel", "List", "Trades", "TradesFor", "Charges", "Margin"},
 	"Portfolio": {"Positions", "Holdings", "Funds", "ConvertPosition", "SetStoploss", "SetTarget", "ExitAllPositions", "ExitPosition"},
+	"Profile":   {"Get"},
 	"Scrips":    {"Quotes", "Ohlc", "Depth", "Expiries", "FutureData", "Historical", "Intraday", "OptionChain"},
 	"Market":    {"Status"},
 }
@@ -33,7 +34,7 @@ func TestPublicSurfaceExposesExactlyTheContractsMethodSet(t *testing.T) {
 	client := clientFor(t, ts, nil)
 	resources := map[string]any{
 		"Auth": client.Auth, "Orders": client.Orders, "Portfolio": client.Portfolio,
-		"Scrips": client.Scrips, "Market": client.Market,
+		"Profile": client.Profile, "Scrips": client.Scrips, "Market": client.Market,
 	}
 
 	total := 0
@@ -49,11 +50,11 @@ func TestPublicSurfaceExposesExactlyTheContractsMethodSet(t *testing.T) {
 		total += len(want)
 	}
 
-	// The spec has 31 operations. The SDK covers 27 of them through these
+	// The spec has 32 operations. The SDK covers 28 of them through these
 	// resources; the instrument list is a sixth resource, tested separately,
 	// and token introspection plus the consent flow are deliberately excluded.
-	if total != 27 {
-		t.Fatalf("total methods = %d, want 27", total)
+	if total != 28 {
+		t.Fatalf("total methods = %d, want 28", total)
 	}
 }
 
